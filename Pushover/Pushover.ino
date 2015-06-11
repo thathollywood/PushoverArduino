@@ -3,46 +3,50 @@
    Pushover sketch by M.J. Meijer 2014
 
    Send pushover.net messages from the arduino
+   
+   Updated for Arduino YUN by Martin Hollywood 2015
 
 */
 
-#include <SPI.h>
-#include <Ethernet.h>
+#include <Bridge.h>
+#include <YunClient.h>
 
-byte mac[] = {0xDE,0xAC,0xBF,0xEF,0xFE,0xAA};
-
-// Pushover settings
+// Pushover settings. Register at https://pushover.net
 char pushoversite[] = "api.pushover.net";
 char apitoken[] = "your30characterapitokenhere123";
 char userkey [] = "your30characteruserkeygoeshere";
 
 int length;
 
-EthernetClient client;
+// Initialize the client library
+YunClient client;
 
-void setup()
-{
+void setup() {
+  // Bridge takes about two seconds to start up
+  pinMode(13, OUTPUT);
+  digitalWrite(13, LOW);
+  Bridge.begin();
+  digitalWrite(13, HIGH);
+
   Serial.begin(9600);
-  Serial.print(F("Starting ethernet..."));
-  if(!Ethernet.begin(mac)) Serial.println("failed");
-  else Serial.println(Ethernet.localIP());
 
-  delay(5000);
-  Serial.println("Ready");
+ // I comment this out when running on a battery & wifi
+// while (!Serial); // wait for a serial connection
 }
 
-void loop()
-{
+void loop() {
   pushover("OMG, Yes it works!!!",0);  
   delay(60000); 
 }
+
+
 
 byte pushover(char *pushovermessage, int priority)
 {
   String message = pushovermessage;
 
   length = 113 + message.length();
-
+  // more info on parameters https://pushover.net/api 
   if(client.connect(pushoversite,80))
   {
     client.println("POST /1/messages.json HTTP/1.1");
@@ -61,6 +65,7 @@ byte pushover(char *pushovermessage, int priority)
     client.print(priority);
     client.print("&retry=60");
     client.print("&expire=3600");
+    
     while(client.connected())  
     {
       while(client.available())

@@ -1,7 +1,7 @@
 PushoverArduino
 ===============
 
-Send pushover.net messages from the arduino to your android or iOS device.
+Send pushover.net messages from the Arduino YUN to your android or iOS device.
 
 If you want to use for example a vaiable in the message, like a temperature reading from a temperature sensor.
 
